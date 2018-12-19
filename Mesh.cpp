@@ -962,12 +962,6 @@ void Mesh::ComputeBoundaryVertexNormals() {
 void Mesh::ProjectVertex() {
 	std::cout << "[step 4] Vertex Projection" << std::endl;
 
-	//std::cout << "bheList value" << std::endl;
-	//for (int i = 0; i < bheList.size(); i++) {
-	//	std::cout << SurfaceValue(bheList[i]->Start()->Position()) << "  ";
-	//}
-	//std::cout << std::endl;
-
 	int count = 0;
 	double error_v = -1.0;
 	double th_v = 0.00000001; // threshold
