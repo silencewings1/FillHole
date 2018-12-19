@@ -361,9 +361,6 @@ public:
 	/* please implement the following functions */
 	void DisplayMeshInfo();
 	void ComputeVertexNormals();
-	void ComputeVertexCurvatures();
-	void UmbrellaSmooth(bool uniformWeights = true);
-	void ImplicitUmbrellaSmooth(bool uniformWeights = true);
 	/************************************************************************/
 
 	// additional helper functions
@@ -380,10 +377,10 @@ public:
 	// add by yhz for filling hole
 	void GeneratePatchMesh(); // [step 1]
 	void OptimizePatchMesh(); // [step 2]
-	void GenerateImplicitSurface();
+	void GenerateImplicitSurface(); // [step 3]
 	double RBF(Eigen::Vector3d x, Eigen::Vector3d c); // function of RBF
-	void ComputeBoundaryVertexNormals();
-	void ProjectVertex();
+	void ComputeBoundaryVertexNormals(); 
+	void ProjectVertex(); // [step 4]
 	double SurfaceValue(Eigen::Vector3d x);
 	Eigen::Vector3d SurfaceGrad(Eigen::Vector3d x);
 	void MergeMesh();
