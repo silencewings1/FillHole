@@ -504,7 +504,6 @@ void Mesh::GeneratePatchMesh() {
 			heholeList.push_back(b2);
 			heholeList.push_back(h3);
 		}
-
 		// update bhefhList
 		HEdgeList List;
 		for (int i = 0; i < bhefhList.size(); i++) {
@@ -512,7 +511,6 @@ void Mesh::GeneratePatchMesh() {
 				List.push_back(bhefhList[i]);
 		}
 		bhefhList = List;
-		//std::cout << "size: " << bhefhList.size() << std::endl;
 	}
 	// last 3 HEdges to form a face
 	Face * f = new Face();
@@ -540,10 +538,9 @@ void Mesh::GeneratePatchMesh() {
 	ffhList.push_back(f);
 
 	std::cout << "[step 1] Done" << std::endl;
-
-	//OptimizeHole();
 }
 
+// test
 double avg_l = 0;
 void Mesh::initFillHole() {
 	bhefhList = bheList;
@@ -710,7 +707,7 @@ void Mesh::FillHoleStep() {
 		std::cout << "size: " << bhefhList.size() << std::endl;
 	}
 }
-
+// test done
 
 void Mesh::OptimizePatchMesh() {
 	std::cout << "[step 2] Patch Mesh Optimization" << std::endl;
@@ -1028,6 +1025,7 @@ Eigen::Vector3d Mesh::SurfaceGrad(Eigen::Vector3d x) {
 	double fy = 0;
 	double fz = 0;
 
+	//// for RBF h(x) = x^3
 	//for (int i = 0; i < bheList.size(); i++) {
 	//	Eigen::Vector3d c = bheList[i]->Start()->Position();
 	//	fx += RBFSurfacePara[i] * (x(0) - c(0))*(x - c).norm();
@@ -1048,11 +1046,11 @@ Eigen::Vector3d Mesh::SurfaceGrad(Eigen::Vector3d x) {
 	//	fy += RBFSurfacePara[i] * (x(1) - c(1))*(x - c).norm();
 	//	fz += RBFSurfacePara[i] * (x(2) - c(2))*(x - c).norm();
 	//}
-
 	//fx = 3 * fx + p1;
 	//fy = 3 * fy + p2;
 	//fz = 3 * fz + p3;
 
+	// for RBF h(x) = x^2*ln(x)
 	for (int i = 0; i < bheList.size(); i++) {
 		Eigen::Vector3d c = bheList[i]->Start()->Position();
 		double n = (x - c).norm();
@@ -1076,7 +1074,6 @@ Eigen::Vector3d Mesh::SurfaceGrad(Eigen::Vector3d x) {
 		fy += RBFSurfacePara[i] * (x(1) - c(1))*(log(n) + n);
 		fz += RBFSurfacePara[i] * (x(2) - c(2))*(log(n) + n);
 	}
-
 	fx = 2 * fx + p1;
 	fy = 2 * fy + p2;
 	fz = 2 * fz + p3;
