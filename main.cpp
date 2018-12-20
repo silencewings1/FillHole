@@ -7,8 +7,7 @@ enum EnumDisplayMode {
 	WIREFRAME,
 	HIDDENLINE,
 	FLATSHADED,
-	SMOOTHSHADED,
-	COLORSMOOTHSHADED
+	SMOOTHSHADED
 };
 
 // variables
@@ -54,7 +53,6 @@ void DrawWireframe();
 void DrawHiddenLine();
 void DrawFlatShaded();
 void DrawSmoothShaded();
-void DrawColorSmoothShaded();
 
 // input related glut functions
 void KeyboardFunc(unsigned char ch, int x, int y);
@@ -107,7 +105,6 @@ void InitMenu() {
 	glutAddMenuEntry("Hidden Line", HIDDENLINE);
 	glutAddMenuEntry("Flat Shaded", FLATSHADED);
 	glutAddMenuEntry("Smooth Shaded", SMOOTHSHADED);
-	glutAddMenuEntry("Color Smooth Shaded", COLORSMOOTHSHADED);
 
 	mainMenu = glutCreateMenu(MenuCallback);
 	glutAddSubMenu("Display", displayMenu);
@@ -236,9 +233,6 @@ void DisplayFunc() {
 		break;
 	case SMOOTHSHADED:
 		DrawSmoothShaded();
-		break;
-	case COLORSMOOTHSHADED:
-		DrawColorSmoothShaded();
 		break;
 	}
 	glutSwapBuffers();

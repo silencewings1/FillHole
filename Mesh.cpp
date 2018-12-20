@@ -966,7 +966,7 @@ void Mesh::ProjectVertex() {
 	double error_v = -1.0;
 	double th_v = 0.00000001; // threshold
 
-	while(abs(error_v) > th_v) {
+	while (abs(error_v) > th_v) {
 		// iteration
 		for (int i = 0; i < vfhList.size(); i++) {
 			Eigen::Vector3d xk = vfhList[i]->Position();
@@ -984,7 +984,7 @@ void Mesh::ProjectVertex() {
 		error_v /= vfhList.size();
 		count++;
 		std::cout << "\titer count: " << count << "\terror:\t " << error_v << std::endl;
-	} 
+	}
 
 	std::cout << "[step 4] Done" << std::endl;
 }
@@ -1028,30 +1028,58 @@ Eigen::Vector3d Mesh::SurfaceGrad(Eigen::Vector3d x) {
 	double fy = 0;
 	double fz = 0;
 
+	//for (int i = 0; i < bheList.size(); i++) {
+	//	Eigen::Vector3d c = bheList[i]->Start()->Position();
+	//	fx += RBFSurfacePara[i] * (x(0) - c(0))*(x - c).norm();
+	//	fy += RBFSurfacePara[i] * (x(1) - c(1))*(x - c).norm();
+	//	fz += RBFSurfacePara[i] * (x(2) - c(2))*(x - c).norm();
+	//}
+	//for (int i = bheList.size(); i < 2 * bheList.size(); i++) {
+	//	Eigen::Vector3d c = bheList[i - bheList.size()]->Start()->Position()
+	//		+ bheList[i - bheList.size()]->Start()->Normal() / 100.0;
+	//	fx += RBFSurfacePara[i] * (x(0) - c(0))*(x - c).norm();
+	//	fy += RBFSurfacePara[i] * (x(1) - c(1))*(x - c).norm();
+	//	fz += RBFSurfacePara[i] * (x(2) - c(2))*(x - c).norm();
+	//}
+	//for (int i = 2 * bheList.size(); i < 3 * bheList.size(); i++) {
+	//	Eigen::Vector3d c = bheList[i - 2 * bheList.size()]->Start()->Position()
+	//		- bheList[i - 2 * bheList.size()]->Start()->Normal() / 100.0;
+	//	fx += RBFSurfacePara[i] * (x(0) - c(0))*(x - c).norm();
+	//	fy += RBFSurfacePara[i] * (x(1) - c(1))*(x - c).norm();
+	//	fz += RBFSurfacePara[i] * (x(2) - c(2))*(x - c).norm();
+	//}
+
+	//fx = 3 * fx + p1;
+	//fy = 3 * fy + p2;
+	//fz = 3 * fz + p3;
+
 	for (int i = 0; i < bheList.size(); i++) {
 		Eigen::Vector3d c = bheList[i]->Start()->Position();
-		fx += RBFSurfacePara[i] * (x(0) - c(0))*(x - c).norm();
-		fy += RBFSurfacePara[i] * (x(1) - c(1))*(x - c).norm();
-		fz += RBFSurfacePara[i] * (x(2) - c(2))*(x - c).norm();
+		double n = (x - c).norm();
+		fx += RBFSurfacePara[i] * (x(0) - c(0))*(log(n) + n);
+		fy += RBFSurfacePara[i] * (x(1) - c(1))*(log(n) + n);
+		fz += RBFSurfacePara[i] * (x(2) - c(2))*(log(n) + n);
 	}
 	for (int i = bheList.size(); i < 2 * bheList.size(); i++) {
 		Eigen::Vector3d c = bheList[i - bheList.size()]->Start()->Position()
 			+ bheList[i - bheList.size()]->Start()->Normal() / 100.0;
-		fx += RBFSurfacePara[i] * (x(0) - c(0))*(x - c).norm();
-		fy += RBFSurfacePara[i] * (x(1) - c(1))*(x - c).norm();
-		fz += RBFSurfacePara[i] * (x(2) - c(2))*(x - c).norm();
+		double n = (x - c).norm();
+		fx += RBFSurfacePara[i] * (x(0) - c(0))*(log(n) + n);
+		fy += RBFSurfacePara[i] * (x(1) - c(1))*(log(n) + n);
+		fz += RBFSurfacePara[i] * (x(2) - c(2))*(log(n) + n);
 	}
 	for (int i = 2 * bheList.size(); i < 3 * bheList.size(); i++) {
 		Eigen::Vector3d c = bheList[i - 2 * bheList.size()]->Start()->Position()
 			- bheList[i - 2 * bheList.size()]->Start()->Normal() / 100.0;
-		fx += RBFSurfacePara[i] * (x(0) - c(0))*(x - c).norm();
-		fy += RBFSurfacePara[i] * (x(1) - c(1))*(x - c).norm();
-		fz += RBFSurfacePara[i] * (x(2) - c(2))*(x - c).norm();
+		double n = (x - c).norm();
+		fx += RBFSurfacePara[i] * (x(0) - c(0))*(log(n) + n);
+		fy += RBFSurfacePara[i] * (x(1) - c(1))*(log(n) + n);
+		fz += RBFSurfacePara[i] * (x(2) - c(2))*(log(n) + n);
 	}
 
-	fx = 3 * fx + p1;
-	fy = 3 * fy + p2;
-	fz = 3 * fz + p3;
+	fx = 2 * fx + p1;
+	fy = 2 * fy + p2;
+	fz = 2 * fz + p3;
 
 	return Eigen::Vector3d(fx, fy, fz);
 }
