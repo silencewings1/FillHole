@@ -302,15 +302,14 @@ void DrawWireframe() {
 	//glPointSize(1.0);
 
 	//// draw vertex normal
-	//VertexList vList = mesh.vList;
-	glBegin(GL_LINES);
-	glColor3f(1.0f, 1.0f, 0.0f);
-	for (int i = 0; i < bheList.size(); i++) {
-		glVertex3dv(bheList[i]->Start()->Position().data());
-		Eigen::Vector3d n = bheList[i]->Start()->Position() + bheList[i]->Start()->Normal() / 100.0;
-		glVertex3dv(n.data());
-	}
-	glEnd();
+	//glBegin(GL_LINES);
+	//glColor3f(1.0f, 1.0f, 0.0f);
+	//for (int i = 0; i < bheList.size(); i++) {
+	//	glVertex3dv(bheList[i]->Start()->Position().data());
+	//	Eigen::Vector3d n = bheList[i]->Start()->Position() + bheList[i]->Start()->Normal() / 20.0;
+	//	glVertex3dv(n.data());
+	//}
+	//glEnd();
 }
 
 // Hidden Line render function
@@ -433,6 +432,9 @@ void KeyboardFunc(unsigned char ch, int x, int y) {
 		break;
 	case 'f':
 		mesh.FillHoleStep();
+		break;
+	case '8':
+		mesh.ComputeBoundaryVertexNormals();
 		break;
 	case '0':
 		displayMode = SMOOTHSHADED;

@@ -97,7 +97,7 @@ bool Mesh::LoadObjFile(const char* filename) {
 	bheList = list;
 
 	for (i = 0; i < vList.size(); i++) {
-		vList[i]->adjHEdges.clear();
+		//vList[i]->adjHEdges.clear();
 		vList[i]->SetIndex((int)i);
 		vList[i]->SetFlag(0);
 	}
@@ -794,7 +794,7 @@ void Mesh::OptimizePatchMesh() {
 
 void Mesh::GenerateImplicitSurface() {
 	/*
-	define RBF mesh as:
+	define RBF surface as:
 	  f(x) = sum(lamda*RBF) + p0 + p1*x + p2*y + p3*z;
 	construct matrix:
 	  H*P = F
