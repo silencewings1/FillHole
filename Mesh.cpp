@@ -540,174 +540,6 @@ void Mesh::GeneratePatchMesh() {
 	std::cout << "[step 1] Done" << std::endl;
 }
 
-// test
-double avg_l = 0;
-void Mesh::initFillHole() {
-	bhefhList = bheList;
-	for (int i = 0; i < bhefhList.size(); i++) {
-		bhefhList[i]->SetHole(true); // HEdge to hole
-	}
-
-	// average length l: s<>2*l
-	//double avg_l = 0;
-	for (int i = 0; i < bhefhList.size(); i++) {
-		Eigen::Vector3d len = bhefhList[i]->Start()->Position() - bhefhList[i]->End()->Position();
-		avg_l += len.norm();
-	}
-	avg_l /= bhefhList.size();
-}
-
-void Mesh::FillHoleStep() {
-
-	if (bhefhList.size() == 3) {
-		// last 3 HEdges to form a face
-		Face * f = new Face();
-		HEdge *he[3];
-		he[0] = bhefhList[0];
-		if (bhefhList[0]->End() == bhefhList[1]->Start()) {
-			he[1] = bhefhList[1];
-			he[2] = bhefhList[2];
-		}
-		else if (bhefhList[0]->End() == bhefhList[2]->Start()) {
-			he[1] = bhefhList[2];
-			he[2] = bhefhList[1];
-		}
-		else {
-			std::cout << "error" << std::endl;
-		}
-		SetPrevNext(he[0], he[1]);
-		SetPrevNext(he[1], he[2]);
-		SetPrevNext(he[2], he[0]);
-		for (int i = 0; i < 3; i++) {
-			SetFace(f, he[i]);
-			he[i]->SetHole(false);
-		}
-		ffhList.push_back(f);
-	}
-	else if (bhefhList.size() > 3) {
-
-		// find min angle (cos)
-		double max_cos = -1.0;
-		Vertex * mp1, *mp2, *mp3;
-		HEdge * he1, *he2;
-		for (int i = 0; i < bhefhList.size(); i++) {
-			Vertex * p1 = bhefhList[i]->Start();
-			Vertex * p2 = bhefhList[i]->End();
-			OneRingHEdge he(p1);
-			HEdge * curr = he.NextHEdge();
-			while (!curr->Twin()->IsHole())
-				curr = he.NextHEdge();
-			Vertex * p3 = curr->End();
-
-			// min angle
-			Eigen::Vector3d v1 = p2->Position() - p1->Position();
-			Eigen::Vector3d v2 = p3->Position() - p1->Position();
-			double cos_theta = v1.dot(v2) / (v1.norm()*v2.norm());
-			if (cos_theta > max_cos) {
-				max_cos = cos_theta;
-				mp1 = p1;
-				mp2 = p2;
-				mp3 = p3;
-				he1 = bhefhList[i];
-				he2 = curr->Twin();
-			}
-		}
-
-		// add HEdge, Vertex, Face
-		double s = (mp2->Position() - mp3->Position()).norm();
-		if (s < 2 * avg_l) {
-			// add one HEdge
-			Face * f = new Face();
-			HEdge * he = new HEdge();
-			HEdge * bhe = new HEdge();
-			SetPrevNext(bhe, he1->Next());
-			SetPrevNext(he2->Prev(), bhe);
-			SetPrevNext(he1, he);
-			SetPrevNext(he, he2);
-			SetPrevNext(he2, he1);
-			SetTwin(he, bhe);
-			he->SetStart(mp2);
-			bhe->SetStart(mp3);
-			mp2->SetHalfEdge(he);
-			mp3->SetHalfEdge(bhe);
-			SetFace(f, he);
-			SetFace(f, he1);
-			SetFace(f, he2);
-			ffhList.push_back(f);
-
-			// update hole sign
-			he1->SetHole(false);
-			he2->SetHole(false);
-			bhe->SetHole(true);
-			bhefhList.push_back(bhe);
-			heholeList.push_back(bhe);
-		}
-		else {
-			// add two HEdge and one Vertex
-			Face * f1 = new Face();
-			Face * f2 = new Face();
-			HEdge * h1 = new HEdge();
-			HEdge * h2 = new HEdge();
-			HEdge * h3 = new HEdge();
-			HEdge * h4 = new HEdge();
-			HEdge * b1 = new HEdge();
-			HEdge * b2 = new HEdge();
-			Vertex * p4 = new Vertex();
-			p4->SetPosition((mp2->Position() + mp3->Position()) / 2);
-			SetPrevNext(b1, he1->Next());
-			SetPrevNext(he2->Prev(), b2);
-			SetPrevNext(b2, b1);
-			SetPrevNext(he1, h1);
-			SetPrevNext(h1, h3);
-			SetPrevNext(h3, he1);
-			SetPrevNext(he2, h4);
-			SetPrevNext(h4, h2);
-			SetPrevNext(h2, he2);
-			SetTwin(h3, h4);
-			SetTwin(h1, b1);
-			SetTwin(h2, b2);
-			h1->SetStart(mp2);
-			b1->SetStart(p4);
-			h2->SetStart(p4);
-			b2->SetStart(mp3);
-			h3->SetStart(p4);
-			h4->SetStart(mp1);
-			mp2->SetHalfEdge(h1);
-			mp3->SetHalfEdge(b2);
-			p4->SetHalfEdge(h3);
-			SetFace(f1, he1);
-			SetFace(f1, h1);
-			SetFace(f1, h3);
-			SetFace(f2, he2);
-			SetFace(f2, h4);
-			SetFace(f2, h2);
-			vfhList.push_back(p4);
-			ffhList.push_back(f1);
-			ffhList.push_back(f2);
-
-			// update hole sign
-			he1->SetHole(false);
-			he2->SetHole(false);
-			b1->SetHole(true);
-			b2->SetHole(true);
-			bhefhList.push_back(b1);
-			bhefhList.push_back(b2);
-			heholeList.push_back(b1);
-			heholeList.push_back(b2);
-			heholeList.push_back(h3);
-		}
-
-		// update bhefhList
-		HEdgeList List;
-		for (int i = 0; i < bhefhList.size(); i++) {
-			if (bhefhList[i]->IsHole())
-				List.push_back(bhefhList[i]);
-		}
-		bhefhList = List;
-		std::cout << "size: " << bhefhList.size() << std::endl;
-	}
-}
-// test done
 
 void Mesh::OptimizePatchMesh() {
 	std::cout << "[step 2] Patch Mesh Optimization" << std::endl;
@@ -910,6 +742,8 @@ void Mesh::GenerateImplicitSurface() {
 	auto HSolver = H.lu();
 	RBFSurfacePara = HSolver.solve(F);
 
+	//std::cout << "RBFSurfacePara:" << RBFSurfacePara << std::endl;
+
 	std::cout << "[step 3] Done" << std::endl;
 }
 
@@ -918,41 +752,8 @@ double Mesh::RBF(Eigen::Vector3d x, Eigen::Vector3d c) {
 	// c is control point, x is other point
 
 	double l = (x - c).norm();
-	if (abs(l) < 0.000001)
-		return 0;
 	//return pow(l, 3);
 	return pow(l, 2)*log(l);
-}
-
-
-void Mesh::ComputeBoundaryVertexNormals() {
-
-	for (int i = 0; i < bheList.size(); i++)
-		bheList[i]->Start()->SetHole(false);
-
-	for (int i = 0; i < bheList.size(); i++) {
-		Eigen::Vector3d normal(0, 0, 0);
-		Vertex *p1 = bheList[i]->Start();
-		Vertex *p2, *p3;
-		OneRingHEdge ring(p1);
-		HEdge *he = NULL;
-		while (he = ring.NextHEdge()) {
-			if (!he->End()->IsHole()) {
-				p2 = he->End();
-				p3 = he->Twin()->Next()->End();
-				if (p3->IsHole())
-					continue;
-				Eigen::Vector3d n = (p3->Position() - p1->Position()).cross(p2->Position() - p1->Position());
-				normal += n / n.norm();
-			}
-		}
-		normal.normalize();
-		bheList[i]->Start()->SetNormal(normal);
-	}
-
-	for (int i = 0; i < bheList.size(); i++)
-		bheList[i]->Start()->SetHole(true);
-
 }
 
 

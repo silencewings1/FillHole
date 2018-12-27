@@ -379,7 +379,6 @@ public:
 	void OptimizePatchMesh(); // [step 2]
 	void GenerateImplicitSurface(); // [step 3]
 	double RBF(Eigen::Vector3d x, Eigen::Vector3d c); // function of RBF
-	void ComputeBoundaryVertexNormals(); 
 	void ProjectVertex(); // [step 4]
 	double SurfaceValue(Eigen::Vector3d x);
 	Eigen::Vector3d SurfaceGrad(Eigen::Vector3d x);
